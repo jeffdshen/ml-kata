@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 import numpy as np
-import relu as sol
+import kata1.relu as sol
 
 class ReluTestCase(unittest.TestCase):
     def check(self, relu, inputs):

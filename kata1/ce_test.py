@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 import numpy as np
-import ce as sol
+import kata1.ce as sol
 
 
 class CeTestCase(unittest.TestCase):
