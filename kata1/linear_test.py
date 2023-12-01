@@ -31,6 +31,9 @@ class LinearTestCase(unittest.TestCase):
             fast_mode=True,
         )
 
+    def tearDown(self):
+        torch.set_default_dtype(torch.float32)
+
     def test_dims_1(self):
         torch.set_default_dtype(torch.float64)
         torch.manual_seed(0)

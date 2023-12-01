@@ -25,6 +25,9 @@ class CeTestCase(unittest.TestCase):
             sol.CeFunction.apply, (inputs, targets), fast_mode=True
         )
 
+    def tearDown(self):
+        torch.set_default_dtype(torch.float32)
+
     def test_dim_1(self):
         torch.set_default_dtype(torch.float64)
         torch.manual_seed(0)

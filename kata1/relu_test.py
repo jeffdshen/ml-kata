@@ -22,6 +22,8 @@ class ReluTestCase(unittest.TestCase):
         torch.testing.assert_close(inputs.grad, expected["inputs.grad"])
         torch.autograd.gradcheck(sol.ReluFunction.apply, (inputs,), fast_mode=True)
 
+    def tearDown(self):
+        torch.set_default_dtype(torch.float32)
 
     def test_relu_64(self):
         torch.set_default_dtype(torch.float64)
@@ -29,4 +31,3 @@ class ReluTestCase(unittest.TestCase):
         relu = nn.ReLU()
         inputs = torch.randn(64, requires_grad=True)
         self.check(relu, inputs)
-    
