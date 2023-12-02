@@ -5,7 +5,7 @@
 Compute functions and gradients for:
 1. A linear layer
 2. A RELU activation
-3. A log-softmax layer (without a mean reduction)
+3. A log-softmax layer (without a mean reduction, without dim = 3+ case)
 
 Implement them in the form of `torch.autograd.Function`.
 
