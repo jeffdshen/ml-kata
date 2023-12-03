@@ -17,6 +17,7 @@ class CeFunction(torch.autograd.Function):
         x = inputs - inputs.max(dim=-1, keepdim=True)[0]
         x = torch.exp(x)
         x = x / x.sum(dim=-1, keepdim=True)
-        y = F.one_hot(targets, x.size(-1))
+        targets = targets.unsqueeze(-1)
+        x.scatter_add_(-1, targets, -torch.ones_like(targets,dtype=x.dtype))
 
-        return d_outputs.unsqueeze(-1) * (-y + x), None
+        return d_outputs.unsqueeze(-1) * x, None

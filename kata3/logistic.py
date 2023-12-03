@@ -15,7 +15,8 @@ def step(weight, bias, x, y, lr):
     yhat = exp_z / exp_z.sum(dim=-1, keepdim=True)
 
     grad_z = yhat
-    grad_z.scatter_(-1, y.unsqueeze(-1), grad_z.gather(-1, y.unsqueeze(-1)) - 1)
+    y = y.unsqueeze(-1)
+    grad_z.scatter_add_(-1, y, -torch.ones_like(y, dtype=grad_z.dtype))
     grad_zt = grad_z.unsqueeze(0).transpose(0, -1).squeeze(-1)
     grad_w = torch.tensordot(grad_zt, x, dims=x.dim() - 1)
     weight -= lr * grad_w
