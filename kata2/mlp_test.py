@@ -13,8 +13,8 @@ class MlpTestCase(unittest.TestCase):
         y = torch.tensor([0, 1, 1, 0], dtype=torch.long)
         model = sol.Mlp(2, 2, 2)
         
-        optimizer = optim.AdamW(model.parameters(), lr=1e-2, betas=(0.9, 0.98))
-        for _ in range(1000):
+        optimizer = optim.SGD(model.parameters(), lr=1e-1, momentum=0.99)
+        for _ in range(400):
             scores = model(x)
             loss = model.loss(scores, y)
             loss.backward()

@@ -43,14 +43,14 @@ class LinearTestCase(unittest.TestCase):
 
     def test_dims_2(self):
         torch.set_default_dtype(torch.float64)
-        torch.manual_seed(0)
+        torch.manual_seed(1)
         linear = nn.Linear(64, 64)
         inputs = torch.randn(64, 64, requires_grad=True)
         self.check(linear, inputs)
 
     def test_dims_3(self):
         torch.set_default_dtype(torch.float64)
-        torch.manual_seed(0)
+        torch.manual_seed(2)
         linear = nn.Linear(64, 64)
         inputs = torch.randn(20, 64, 64)
         inputs.requires_grad_(True)

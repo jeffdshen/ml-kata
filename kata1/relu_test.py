@@ -25,9 +25,23 @@ class ReluTestCase(unittest.TestCase):
     def tearDown(self):
         torch.set_default_dtype(torch.float32)
 
-    def test_relu_64(self):
+    def test_dims_1(self):
         torch.set_default_dtype(torch.float64)
         torch.manual_seed(0)
         relu = nn.ReLU()
         inputs = torch.randn(64, requires_grad=True)
+        self.check(relu, inputs)
+
+    def test_dims_2(self):
+        torch.set_default_dtype(torch.float64)
+        torch.manual_seed(1)
+        relu = nn.ReLU()
+        inputs = torch.randn(16, 32, requires_grad=True)
+        self.check(relu, inputs)
+
+    def test_dims_3(self):
+        torch.set_default_dtype(torch.float64)
+        torch.manual_seed(2)
+        relu = nn.ReLU()
+        inputs = torch.randn(4, 8, 16, requires_grad=True)
         self.check(relu, inputs)

@@ -38,7 +38,7 @@ class CeTestCase(unittest.TestCase):
 
     def test_dim_2(self):
         torch.set_default_dtype(torch.float64)
-        torch.manual_seed(0)
+        torch.manual_seed(1)
         ce = nn.CrossEntropyLoss(reduction="none")
         inputs = torch.randn(64, 64, requires_grad=True)
         targets = torch.randint(0, 64, (64,))
