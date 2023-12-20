@@ -121,9 +121,9 @@ class SoftLogisticTestCase(unittest.TestCase):
 
     def test_dim3_multi(self):
         torch.manual_seed(0)
-        model = SoftLogisticModel(64, 64)
-        x = torch.randn(20, 32, 64)
-        y = torch.rand(20, 32, 64)
+        model = SoftLogisticModel(32, 10)
+        x = torch.randn(20, 32, 32)
+        y = torch.rand(20, 32, 10)
         optimizer = torch.optim.SGD(model.parameters(), 0.1)
         for _ in range(10):
             self.check_and_step(model, x, y, 0.1, optimizer)
