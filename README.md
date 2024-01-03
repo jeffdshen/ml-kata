@@ -25,3 +25,4 @@ To practice a kata:
 3. **Logistic SGD**. Code multinomial logistic regression training from scratch with SGD.
 4. **RNN**. Write a 2-layer Elman RNN with tanh non-linearity.
 5. **Scaled Dot Product Attention.** Implement scaled dot product attention.
+6. **Optimizers**. Implement SGD with momentum, Adagrad, RMSprop, Adam, AdamW.
