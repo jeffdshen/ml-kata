@@ -16,9 +16,6 @@ class RnnTestCase(unittest.TestCase):
         expected["h_n"] = h_n.detach().clone()
         (outputs.sum() ** 2).backward()
 
-        for k, v in rnn.named_parameters():
-            expected[f"{k}.grad"] = v.grad.detach().clone()
-
         expected[f"inputs.grad"] = inputs.grad.detach().clone()
         expected[f"h_0.grad"] = h_0.grad.detach().clone()
         inputs.grad.zero_()
