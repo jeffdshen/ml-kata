@@ -38,7 +38,7 @@ Adam(params, lr, betas, eps)
 AdamW(params, lr, betas, eps, weight_decay)
 ```
 
-Some implentation notes:
+Some implementation notes:
 1. For momentum, to follow the pytorch implementation, the momentum buffer should be initialized to the first gradient and not to all zeros.
 2. The pytorch momentum formulation uses momentum and dampening (which also differs from some others). We just use momentum, i.e. `m <- a m + (1 - a) g`
 3. For optimizers using eps, eps is applied after the sqrt of the variance.
