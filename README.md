@@ -26,3 +26,5 @@ To practice a kata:
 4. **RNN**. Write a 2-layer Elman RNN with tanh non-linearity.
 5. **Scaled Dot Product Attention.** Implement scaled dot product attention.
 6. **Optimizers**. Implement SGD with momentum, Adagrad, RMSprop, Adam, AdamW.
+7. **Multi-head Attention**. Implement multi-head attention.
+8. **Softmax**. Compute forward/backward for softmax.
