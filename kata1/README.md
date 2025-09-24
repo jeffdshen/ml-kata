@@ -9,7 +9,7 @@ Compute functions and gradients for:
 
 Implement them in the form of `torch.autograd.Function`.
 
-For example (note these can accept multiple args):
+For example:
 ```
 class Exp(Function):
     @staticmethod
@@ -18,13 +18,19 @@ class Exp(Function):
         ctx.save_for_backward(result)
         return result
 
-     @staticmethod
-     def backward(ctx, grad_output):
+    @staticmethod
+    def backward(ctx, grad_output):
         result, = ctx.saved_tensors
         return grad_output * result
 ```
 
-They will be compared against:
+Note that:
+* forward, backward can accept/return multiple args that correspond to one another.
+* save_for_backward, saved_tensors can also accept/return multiple args.
+* The gradients from backward will be reduced via sum to match the forward shape,
+which can be convenient.
+
+The functions (`LinearFunction`, `ReluFunction`, `CeFunction`) will be compared against:
 ```
 torch.nn.functional.linear(input, weight, bias) -> Tensor
 torch.nn.functional.relu(input) -> Tensor
