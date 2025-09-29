@@ -28,3 +28,4 @@ To practice a kata:
 6. **Optimizers**. Implement SGD with momentum, Adagrad, RMSprop, Adam, AdamW.
 7. **Multi-head Attention**. Implement multi-head attention.
 8. **Softmax**. Compute forward/backward for softmax.
+9. **RoBERTa**. Implement RoBERTa from scratch.
