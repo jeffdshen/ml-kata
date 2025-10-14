@@ -176,36 +176,7 @@ class Gpt2LMHeadModel(Gpt2PretrainedModel):
         self.lm_head = new_embeddings
 
     def load_hf_state_dict(self, state_dict, *args, **kwargs):
-        new_state_dict = {}
-        non_layer_keys = [
-            "transformer.wte.weight",
-            "transformer.wpe.weight",
-            "transformer.ln_f.weight",
-            "transformer.ln_f.bias",
-            "lm_head.weight",
-        ]
-        for k in non_layer_keys:
-            new_state_dict[k] = state_dict[k]
-
-        for i in range(self.config.num_hidden_layers):
-            layer_keys = [
-                f"transformer.h.{i}.ln_1.weight",
-                f"transformer.h.{i}.ln_1.bias",
-                f"transformer.h.{i}.attn.c_attn.weight",
-                f"transformer.h.{i}.attn.c_attn.bias",
-                f"transformer.h.{i}.attn.c_proj.weight",
-                f"transformer.h.{i}.attn.c_proj.bias",
-                f"transformer.h.{i}.ln_2.weight",
-                f"transformer.h.{i}.ln_2.bias",
-                f"transformer.h.{i}.mlp.c_fc.weight",
-                f"transformer.h.{i}.mlp.c_fc.bias",
-                f"transformer.h.{i}.mlp.c_proj.weight",
-                f"transformer.h.{i}.mlp.c_proj.bias",
-            ]
-
-            new_state_dict.update({k: state_dict[k] for k in layer_keys})
-
-        return self.load_state_dict(new_state_dict, *args, **kwargs)
+        return self.load_state_dict(state_dict, *args, **kwargs)
 
     def forward(
         self,

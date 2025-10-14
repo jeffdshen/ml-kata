@@ -88,3 +88,22 @@ GPT2LMHeadModel(
   )
   (lm_head): Linear(in_features=768, out_features=50257, bias=False)
 )
+>>> list(dict.fromkeys([re.sub("\\.\\d+\\.", ".{i}.", key) for key in model.state_dict()]))
+['transformer.wte.weight',
+ 'transformer.wpe.weight',
+ 'transformer.h.{i}.ln_1.weight',
+ 'transformer.h.{i}.ln_1.bias',
+ 'transformer.h.{i}.attn.c_attn.weight',
+ 'transformer.h.{i}.attn.c_attn.bias',
+ 'transformer.h.{i}.attn.c_proj.weight',
+ 'transformer.h.{i}.attn.c_proj.bias',
+ 'transformer.h.{i}.ln_2.weight',
+ 'transformer.h.{i}.ln_2.bias',
+ 'transformer.h.{i}.mlp.c_fc.weight',
+ 'transformer.h.{i}.mlp.c_fc.bias',
+ 'transformer.h.{i}.mlp.c_proj.weight',
+ 'transformer.h.{i}.mlp.c_proj.bias',
+ 'transformer.ln_f.weight',
+ 'transformer.ln_f.bias',
+ 'lm_head.weight']
+```
