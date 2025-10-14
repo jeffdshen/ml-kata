@@ -11,8 +11,8 @@ dependencies = [
   "pip==23.1.2",
   "tqdm==4.66.1",
   "datasets==2.15.0",
-  "tokenizers==0.13.3",
-  "transformers==4.32.1",
+  "tokenizers",
+  "transformers==4.57.0",
   "evaluate",
   "scikit-learn==1.2.2",
   "matplotlib==3.7.1",
@@ -25,13 +25,13 @@ dependencies = [
 
 [project.optional-dependencies]
 cpu = [
-  "torch==2.1.0",
+  "torch==2.2.0",
 ]
 cu124 = [
   "torch>=2.3.0",
 ]
 macos = [
-  "torch==2.1.0",
+  "torch==2.2.0",
 ]
 
 [tool.uv]

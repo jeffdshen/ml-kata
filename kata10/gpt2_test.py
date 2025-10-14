@@ -139,6 +139,7 @@ class Gpt2TestCase(unittest.TestCase):
             layer_norm_epsilon=1e-5,
             scale_attn_weights=True,
             use_cache=False,
+            attn_implementation="eager"
         )
 
     def test_basic(self):
