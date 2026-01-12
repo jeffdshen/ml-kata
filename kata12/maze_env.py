@@ -4,6 +4,7 @@ from functools import cached_property
 from random import Random
 
 import numpy as np
+from numpy.typing import NDArray
 
 from kata12.types import Env2D, Step
 
@@ -15,7 +16,7 @@ GOAL = 3
 
 @dataclass
 class MazeState:
-    grid: list[list[int]]
+    grid: NDArray[np.int32]
     """The grid, 0 for empty, 1 for wall, 2 for agent, 3 for end"""
 
     x: int
@@ -26,16 +27,20 @@ class MazeState:
     timestep: int = 0
 
     def __post_init__(self):
-        self.grid[self.x][self.y] = AGENT
-        self.grid[self.goal_x][self.goal_y] = GOAL
+        self.grid[self.x, self.y] = AGENT
+        self.grid[self.goal_x, self.goal_y] = GOAL
+
+    @cached_property
+    def m(self) -> int:
+        return self.grid.shape[0]
 
     @cached_property
     def n(self) -> int:
-        return len(self.grid)
+        return self.grid.shape[1]
 
     @property
     def obs(self) -> list[int]:
-        return [col for row in self.grid for col in row]
+        return self.grid.flatten().tolist()
 
     def __str__(self) -> str:
         result = "".join(["".join(str(i) for i in row) + "\n" for row in self.grid])
@@ -49,8 +54,8 @@ class MazeState:
             GOAL: [0, 255, 0],
         }
 
-        img = np.zeros((self.n, self.n, 3), dtype=np.uint8)
-        for i in range(self.n):
+        img = np.zeros((self.m, self.n, 3), dtype=np.uint8)
+        for i in range(self.m):
             for j in range(self.n):
                 img[i, j] = color_map[self.grid[i][j]]
 
@@ -60,7 +65,7 @@ class MazeState:
     def dist_to_goal(self) -> int:
         return abs(self.x - self.goal_x) + abs(self.y - self.goal_y)
 
-    def step(self, action: int) -> Step:
+    def step(self, action: int, return_obs: bool = True) -> Step:
         self.timestep += 1
 
         actions = {0: (0, 1), 1: (1, 0), 2: (0, -1), 3: (-1, 0)}
@@ -69,10 +74,10 @@ class MazeState:
         old_dist = self.dist_to_goal
 
         nx, ny = self.x + dx, self.y + dy
-        if 0 <= nx < self.n and 0 <= ny < self.n and self.grid[nx][ny] in [EMPTY, GOAL]:
-            self.grid[self.x][self.y] = EMPTY
+        if 0 <= nx < self.m and 0 <= ny < self.n and self.grid[nx, ny] in [EMPTY, GOAL]:
+            self.grid[self.x, self.y] = EMPTY
             self.x, self.y = nx, ny
-            self.grid[self.x][self.y] = AGENT
+            self.grid[self.x, self.y] = AGENT
 
         new_dist = self.dist_to_goal
 
@@ -89,11 +94,43 @@ class MazeState:
             reward = 0.0
 
         return Step(
-            observation=self.obs,
+            observation=self.obs if return_obs else [],
             reward=reward,
             terminated=terminated,
             truncated=truncated,
         )
+
+
+@dataclass
+class FixedMazeEnv(Env2D):
+    initial_state: MazeState
+    state: MazeState | None = None
+    return_obs: bool = True
+
+    def step(self, action: int) -> Step:
+        if self.state is None:
+            raise ValueError("Not reset!")
+
+        return self.state.step(action, self.return_obs)
+
+    def reset(self) -> Step:
+        self.state = copy.deepcopy(self.initial_state)
+        obs = self.state.obs if self.return_obs else []
+        return Step(observation=obs)
+
+    @property
+    def max_action(self) -> int:
+        return 4
+
+    @property
+    def input_dim(self) -> tuple[int, int]:
+        return self.initial_state.n, self.initial_state.n
+
+    def to_img(self) -> np.ndarray:
+        """Convert the current maze state to an RGB image array."""
+        if self.state is None:
+            raise ValueError("Environment not reset!")
+        return self.state.to_img()
 
 
 @dataclass
@@ -142,14 +179,14 @@ class MazeEnv(Env2D):
         path = self._random_monotone_path()
         path_set = set(path)
 
-        grid = [[0] * self.n for _ in range(self.n)]
+        grid = np.zeros((self.n, self.n), dtype=np.int32)
 
         fill_prob = self.fill_prob if self.fill_prob is not None else self.rng.random()
 
         for x in range(self.n):
             for y in range(self.n):
                 if (x, y) not in path_set:
-                    grid[x][y] = 1 if self.rng.random() < fill_prob else 0
+                    grid[x, y] = 1 if self.rng.random() < fill_prob else 0
 
         if self.randomize_agent:
             x, y = self.rng.choice(path[:-1])
@@ -174,7 +211,7 @@ class MazeEnv(Env2D):
         self.repeats += 1
         return Step(observation=self.state.obs)
 
-    def step(self, action) -> Step:
+    def step(self, action: int) -> Step:
         if self.state is None:
             raise ValueError("Not reset!")
 

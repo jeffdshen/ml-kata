@@ -1,5 +1,3 @@
-import dataclasses
-import json
 import random
 import time
 from pathlib import Path
@@ -7,7 +5,6 @@ from random import Random
 
 import torch
 import torch.optim as optim
-from PIL import Image
 
 from kata12.maze_env import *
 from kata12.models import *
@@ -145,63 +142,6 @@ def vpg_train(
     return policy
 
 
-def evaluate_policy(
-    env: Env2D,
-    policy: Policy,
-    num_episodes: int = 100,
-    num_save_gifs: int = 10,
-    output_dir: str | None = None,
-) -> dict[str, float]:
-    episodes: list[Episode] = []
-
-    for _ in range(num_episodes):
-        episode = env.run_episode(policy, debug=True)
-        episodes.append(episode)
-
-    if output_dir:
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-        for i, ep in enumerate(episodes[:num_save_gifs]):
-            assert ep.imgs is not None
-            imgs = [
-                np.repeat(np.repeat(img, 20, axis=0), 20, axis=1) for img in ep.imgs
-            ]
-            frames = [Image.fromarray(img) for img in imgs]
-            gif_path = output_path / f"episode_{i:03d}.gif"
-            frames[0].save(
-                gif_path, save_all=True, append_images=frames[1:], duration=100, loop=0
-            )
-        episode_jsons = [
-            dataclasses.asdict(dataclasses.replace(ep, imgs=None)) for ep in episodes
-        ]
-        with open(output_path / "episodes.json", "w") as f:
-            json.dump(episode_jsons, f)
-
-        with open(output_path / "episodes.log", "w") as f:
-            for i, ep in enumerate(episodes):
-                f.write(f"Episode: {i:03d}\n")
-                assert ep.strs is not None
-                f.write(ep.strs[0])
-                for i, (step, action, s) in enumerate(
-                    zip(ep.steps[1:], ep.actions, ep.strs[1:])
-                ):
-                    f.write(
-                        f"Step {i}: "
-                        f"{action.action}, "
-                        f"{np.round(action.debug_info['probs'], 4)}, "
-                        f"{step.reward}\n"
-                    )
-                    f.write(s)
-                f.write(f"{'=' * 30}\n\n")
-        print(f"Saved to: {output_dir}")
-
-    return {
-        "success_rate": float(np.mean([e.success for e in episodes])),
-        "avg_return": float(np.mean([e.total_return for e in episodes])),
-        "avg_steps": float(np.mean([len(e.steps) for e in episodes])),
-    }
-
-
 def main():
     random.seed(0)
     torch.manual_seed(0)
@@ -257,7 +197,10 @@ def main():
         policy=policy,
         num_episodes=100,
         num_save_gifs=10,
-        output_dir="maze_output",
+        output_dir="maze_output/vpg",
+        action_debug_print_fn=lambda x: (
+            np.round(x.get("probs", []), 4) if isinstance(x, dict) else None
+        ),
     )
     print("Evaluation:")
     for k, v in metrics.items():
