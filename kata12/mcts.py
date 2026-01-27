@@ -6,7 +6,7 @@ from typing import Callable, Generic, TypeVar
 
 import numpy as np
 
-from kata12.maze_env import AGENT, EMPTY, GOAL, MazeEnv, FixedMazeEnv, MazeState
+from kata12.maze_env import EMPTY, GOAL, FixedMazeEnv, MazeEnv, maze_obs_to_env
 from kata12.types import Action, Env2D, Policy, Step
 from kata12.vpg import evaluate_policy
 
@@ -71,8 +71,10 @@ class MctsPolicy(Policy, Generic[EnvT]):
             list(range(len(root.children))),
             key=lambda i: root.children[i].visits if root.children is not None else 0,
         )
-        # self.print_tree(root, max_level=1)
-        return Action(action=action, debug_info=None)
+        logits = [
+            0.0 if i == action else float("-inf") for i in range(len(root.children))
+        ]
+        return Action(logits)
 
     def print_tree(self, node: MctsNode, max_level: int, level: int = 0):
         if level > max_level:
@@ -175,21 +177,6 @@ def simple_heuristic(rng: Random, env: FixedMazeEnv) -> int:
     return rng.choice([0, 1])
 
 
-def obs_to_env(observation: list[int], n: int, max_steps: int) -> FixedMazeEnv:
-    grid = np.array(observation, dtype=np.int32)
-    grid = grid.reshape((n, n))
-
-    x, y = np.where(grid == AGENT)
-    x, y = x.item(), y.item()
-    goal_x, goal_y = np.where(grid == GOAL)
-    goal_x, goal_y = goal_x.item(), goal_y.item()
-    return FixedMazeEnv(
-        initial_state=MazeState(
-            grid=grid, x=x, y=y, goal_x=goal_x, goal_y=goal_y, max_steps=max_steps
-        )
-    )
-
-
 def main():
     random.seed(0)
 
@@ -201,7 +188,7 @@ def main():
     rng = Random(1337)
     heuristic = lambda x: simple_heuristic(rng, x)
     policy = MctsPolicy[FixedMazeEnv](
-        obs_to_env=lambda obs: obs_to_env(obs, n, val_env.max_steps),
+        obs_to_env=lambda obs: maze_obs_to_env(obs, n, val_env.max_steps),
         heuristic=heuristic,
         total_steps=total_steps,
         beta=beta,

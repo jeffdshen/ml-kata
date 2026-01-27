@@ -75,11 +75,7 @@ class ConvPolicy(Policy):
         with torch.no_grad():
             obs = torch.tensor(observation, dtype=torch.float32)
             logits: torch.Tensor = self(obs)
-            dist = torch.distributions.Categorical(logits=logits)
-            probs = dist.probs.tolist()  # type: ignore
-            return Action(
-                int(dist.sample().item()), {"logits": logits.tolist(), "probs": probs}
-            )
+            return Action(logits.tolist())
 
 
 class ConvValue(ValueFunction):
@@ -100,7 +96,7 @@ class ConvValue(ValueFunction):
         self.value_proj = nn.Linear(ffn_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.value_proj(torch.nn.functional.relu(self.net(x)))
+        return self.value_proj(torch.nn.functional.relu(self.net(x))).squeeze(-1)
 
     def value(self, observation: list[int]) -> float:
         with torch.no_grad():
@@ -143,13 +139,8 @@ class MlpPolicy(Policy):
     def act(self, observation: list[int]) -> Action:
         with torch.no_grad():
             obs = torch.tensor(observation, dtype=torch.float32)
-            logits = self(obs)
             logits: torch.Tensor = self(obs)
-            dist = torch.distributions.Categorical(logits=logits)
-            probs = dist.probs.tolist()  # type: ignore
-            return Action(
-                int(dist.sample().item()), {"logits": logits.tolist(), "probs": probs}
-            )
+            return Action(logits.tolist())
 
 
 class MlpValue(ValueFunction):
@@ -158,7 +149,7 @@ class MlpValue(ValueFunction):
         self.net = MlpNet(input_dim=input_dim, output_dim=1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x.long())
+        return self.net(x.long()).squeeze(-1)
 
     def value(self, observation: list[int]) -> float:
         with torch.no_grad():

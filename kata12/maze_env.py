@@ -222,3 +222,17 @@ class MazeEnv(Env2D):
         if self.state is None:
             raise ValueError("Environment not reset!")
         return self.state.to_img()
+
+def maze_obs_to_env(observation: list[int], n: int, max_steps: int) -> FixedMazeEnv:
+    grid = np.array(observation, dtype=np.int32)
+    grid = grid.reshape((n, n))
+
+    x, y = np.where(grid == AGENT)
+    x, y = x.item(), y.item()
+    goal_x, goal_y = np.where(grid == GOAL)
+    goal_x, goal_y = goal_x.item(), goal_y.item()
+    return FixedMazeEnv(
+        initial_state=MazeState(
+            grid=grid, x=x, y=y, goal_x=goal_x, goal_y=goal_y, max_steps=max_steps
+        )
+    )

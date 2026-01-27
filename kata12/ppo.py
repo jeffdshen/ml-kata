@@ -11,7 +11,17 @@ from kata12.models import *
 from kata12.types import *
 
 
-def vpg_train(
+def to_returns(rewards: list[float], value: float, discount_factor: float):
+    G = value
+    returns = []
+    for reward in reversed(rewards):
+        G = reward + discount_factor * G
+        returns.append(G)
+    returns.reverse()
+    return returns
+
+
+def ppo_train(
     env: Env2D,
     policy: Policy,
     optimizer: optim.Optimizer,
@@ -19,23 +29,21 @@ def vpg_train(
     vf_optimizer: optim.Optimizer,
     epochs: int,
     episodes_per_epoch: int,
+    pi_steps_per_epoch: int,
     vf_steps_per_epoch: int,
     gamma: float,
     gae_lambda: float,
-) -> Policy:
-    total_return_ema = 0.0
-    returns_ema = 0.0
-    steps_ema = 0.0
-    success_ema = 0.0
-    loss_v_ema = 0.0
-    norm = 0.0
-
+    clip_ratio: float,
+):
+    stats = EmaStats()
     start_time = time.time()
+    norm = 0.0
 
     for epoch in range(epochs):
         obs_t = []
         returns_t = []
         actions_t = []
+        old_logits_t = []
         advantages_t = []
 
         for ep in range(episodes_per_epoch):
@@ -43,50 +51,38 @@ def vpg_train(
             episode = env.run_episode(policy)
             returns = []
             advantages = []
+            # TODO: should truncated be omitted here?
             values = [
-                vf.value(step.observation) if not step.terminated else 0.0
+                vf.value(step.observation) if not (step.terminated or step.truncated) else 0.0
                 for step in episode.steps
             ]
+            rewards = [step.reward for step in episode.steps[1:]]
             gae_rewards = [
-                step.reward + gamma * value - prev_value
-                for value, prev_value, step in zip(
-                    values[1:], values[:-1], episode.steps[1:]
-                )
+                reward + gamma * value - prev_value
+                for prev_value, value, reward in zip(values[:-1], values[1:], rewards)
             ]
+            returns = to_returns(rewards, values[-1], gamma)
+            advantages = to_returns(gae_rewards, 0, gae_lambda * gamma)
 
             total_return = sum(step.reward for step in episode.steps)
-            G = values[-1]
-            for step in reversed(episode.steps):
-                G = step.reward + gamma * G
-                returns.append(G)
-            returns.pop()
-            returns.reverse()
-
-            G = values[-1]
-            for gae_reward in reversed(gae_rewards):
-                G = gae_reward + gae_lambda * gamma * G
-                advantages.append(G)
-            advantages.reverse()
-
-            returns_ema = 0.99 * returns_ema + 0.01 * returns[0]
-            total_return_ema = 0.99 * total_return_ema + 0.01 * total_return
-            steps_ema = 0.99 * steps_ema + 0.01 * len(episode.steps)
-            success_ema = 0.99 * success_ema + 0.01 * episode.success
-
+            stats.log_ema(
+                {
+                    "R": total_return,
+                    "r": returns[0],
+                    "steps": len(episode.steps),
+                    "success": episode.success,
+                },
+                ratio=0.99,
+            )
             if total_ep % 100 == 0:
-                weight_norm = torch.norm(
-                    torch.stack([p.norm(2) for p in policy.parameters()]), 2
-                )
-                elapsed_time = time.time() - start_time
                 print(
                     total_ep,
-                    f"time={elapsed_time:.4f}",
-                    f"r={total_return_ema:.4f}",
-                    f"r_gamma={returns_ema:.4f}",
-                    f"steps={steps_ema:.4f}",
-                    f"success={success_ema:.4f}",
-                    f"{norm=:.4f}",
-                    f"{weight_norm=:.4f}",
+                    f"time={time.time() - start_time:.4f}",
+                    stats.format(
+                        "R={R:.4f} r={r:.4f} steps={steps:.4f} success={success:.4f}"
+                    ),
+                    f"norm={norm:.4f}",
+                    f"weight_norm={torch.norm( torch.stack([p.norm(2) for p in policy.parameters()]), 2 ).item():.4f}",
                 )
 
             for step, action, r, adv in zip(
@@ -96,42 +92,44 @@ def vpg_train(
                 returns_t.append(torch.tensor(r, dtype=torch.float32))
                 advantages_t.append(torch.tensor(adv, dtype=torch.float))
                 actions_t.append(torch.tensor(action.action, dtype=torch.long))
+                old_logits_t.append(torch.tensor(action.logits, dtype=torch.float32))
 
-        obs_t, actions_t, returns_t, advantages_t = (
+        obs_t, actions_t, returns_t, advantages_t, old_logits_t = (
             torch.stack(obs_t),
             torch.stack(actions_t),
             torch.stack(returns_t),
             torch.stack(advantages_t),
+            torch.stack(old_logits_t),
         )
-        # TODO: probably don't normalize returns_t when used in value function!
-        returns_t = (returns_t - returns_t.mean()) / (
-            returns_t.std(unbiased=False) + 1e-8
-        )
+
+        # returns_t = (returns_t - returns_t.mean()) / (
+        #     returns_t.std(unbiased=False) + 1e-8
+        # )
         advantages_t = (advantages_t - advantages_t.mean()) / (
             advantages_t.std(unbiased=False) + 1e-8
         )
-        logits_t = policy(obs_t)
-        dist = torch.distributions.Categorical(logits=logits_t)
-        logp: torch.Tensor = dist.log_prob(actions_t)
-        # loss = (-logp * returns_t).sum() / episodes_per_epoch
-        loss = (-logp * returns_t).mean()
-        # loss = (-logp * advantages_t).mean()
-
-        loss.backward()
-        try:
+        old_dist = torch.distributions.Categorical(logits=old_logits_t)
+        old_logp: torch.Tensor = old_dist.log_prob(actions_t)
+        for _ in range(pi_steps_per_epoch):
+            optimizer.zero_grad()
+            logits_t = policy(obs_t)
+            dist = torch.distributions.Categorical(logits=logits_t)
+            logp: torch.Tensor = dist.log_prob(actions_t)
+            ratio = (logp - old_logp).exp()
+            kl = (old_logp - logp).mean().item()
+            if kl > 1.5 * 0.01:
+                break
+            loss = -torch.min(
+                ratio * advantages_t,
+                torch.clamp(ratio, 1 - clip_ratio, 1 + clip_ratio) * advantages_t,
+            ).mean()
+            # loss = (-ratio * advantages_t).mean()
+            # loss = (-logp * advantages_t).mean()
+            loss.backward()
             norm = torch.nn.utils.clip_grad_norm_(
-                policy.parameters(), max_norm=5.0, error_if_nonfinite=True
+                policy.parameters(), max_norm=1.0, error_if_nonfinite=True
             )
-        except:
-            print(loss)
-            print(returns_t)
-            print(logp)
-            print(actions_t)
-            print(obs_t)
-            raise
-
-        optimizer.step()
-        optimizer.zero_grad()
+            optimizer.step()
 
         for _ in range(vf_steps_per_epoch):
             vf_optimizer.zero_grad()
@@ -166,12 +164,12 @@ def main():
     vf = ConvValue(input_dim=env.input_dim)
     # vf = DummyValue()
 
-    optimizer = optim.AdamW(policy.parameters(), lr=1e-3)
+    optimizer = optim.AdamW(policy.parameters(), lr=3e-4)
     vf_optimizer = optim.AdamW(vf.parameters(), lr=1e-3)
     # optimizer = optim.SGD(policy.parameters(), lr=1e-3, momentum=0.9)
     # vf_optimizer = optim.SGD(vf.parameters(), lr=1e-3, momentum=0.9)
     try:
-        policy = vpg_train(
+        policy = ppo_train(
             env=env,
             policy=policy,
             optimizer=optimizer,
@@ -179,7 +177,9 @@ def main():
             vf_optimizer=vf_optimizer,
             epochs=epochs,
             episodes_per_epoch=episodes_per_epoch,
-            vf_steps_per_epoch=4,
+            pi_steps_per_epoch=80,
+            vf_steps_per_epoch=80,
+            clip_ratio=0.20,
             gamma=0.99,
             gae_lambda=0.95,
         )
@@ -198,7 +198,7 @@ def main():
         policy=policy,
         num_episodes=100,
         num_save_gifs=10,
-        output_dir="maze_output/vpg",
+        output_dir="maze_output/ppo",
         action_debug_print_fn=lambda x: (
             np.round(x.get("probs", []), 4) if isinstance(x, dict) else None
         ),

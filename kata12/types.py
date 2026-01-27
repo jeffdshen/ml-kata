@@ -1,11 +1,12 @@
 import dataclasses
 import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
+import torch
 import numpy as np
 import torch.nn as nn
 from PIL import Image
@@ -21,8 +22,20 @@ class Step:
 
 @dataclass(frozen=True)
 class Action:
-    action: int
-    debug_info: Any
+    logits: list[float]
+    debug_info: Any = None
+
+    @cached_property
+    def dist(self):
+        return torch.distributions.Categorical(logits=torch.tensor(self.logits))
+
+    @cached_property
+    def probs(self) -> list[float]:
+        return self.dist.probs.tolist()  # type: ignore
+
+    @cached_property
+    def action(self) -> int:
+        return int(self.dist.sample().item())
 
 
 @dataclass(frozen=True)
@@ -107,7 +120,7 @@ def evaluate_policy(
         episode = env.run_episode(policy, debug=True)
         episodes.append(episode)
         print(
-            f"finished episode {i}: {episode.success=}, {episode.total_return=}, {len(episode.steps)}"
+            f"finished episode {i}: {episode.success=}, {episode.total_return=:g}, {len(episode.steps)}"
         )
 
     if output_dir:
@@ -158,3 +171,30 @@ def evaluate_policy(
         "avg_return": float(np.mean([e.total_return for e in episodes])),
         "avg_steps": float(np.mean([len(e.steps) for e in episodes])),
     }
+
+
+@dataclass
+class Stat:
+    count: float
+    sum: float
+
+    @property
+    def avg(self):
+        return self.sum / self.count
+
+
+@dataclass
+class EmaStats:
+    stats: dict[str, Stat] = field(default_factory=dict)
+
+    def log_ema(self, samples: dict[str, int | float | bool], ratio=0.99):
+        for k, v in samples.items():
+            if k not in self.stats:
+                self.stats[k] = Stat(0.0, 0.0)
+            stat = self.stats[k]
+            stat.sum = stat.sum * ratio + (1 - ratio) * v
+            stat.count = stat.count * ratio + (1 - ratio)
+
+    def format(self, format_str: str):
+        values = {k: v.avg for k, v in self.stats.items()}
+        return format_str.format(**values)
