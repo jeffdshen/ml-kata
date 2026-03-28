@@ -4,7 +4,7 @@
 
 Write a one hidden layer MLP, and a simple train loop for hand-written digits. Implement the following:
 
-1. MLP, accepting input, hidden, output size. It should also provide a loss function.
+1. MLP, accepting input, hidden, output size. forward should take batch of inputs and return (loss, logits)
 2. NumpyDataset using torch dataset, accepting numpy inputs and targets
 3. Train loop with AdamW optimizer, accepting `train_inputs, train_targets, valid_inputs, valid_targets, epochs`. It should return the valid predictions. Seeding will be handled by the test script.
 

@@ -5,7 +5,13 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-import kata02.dataset as sol
+import os
+
+if os.environ.get("ML_KATA_SOL"):
+    import kata02.sol.dataset as sol
+else:
+    import kata02.dataset as sol
+
 
 class NumpyDatasetTestCase(unittest.TestCase):
     def test_dataset(self):
@@ -19,5 +25,5 @@ class NumpyDatasetTestCase(unittest.TestCase):
         targets = torch.from_numpy(targets)
 
         for i, (x, y) in enumerate(loader):
-            torch.testing.assert_close(x, inputs[i * 8: (i + 1) * 8])
-            torch.testing.assert_close(y, targets[i * 8: (i + 1) * 8])
+            torch.testing.assert_close(x, inputs[i * 8 : (i + 1) * 8])
+            torch.testing.assert_close(y, targets[i * 8 : (i + 1) * 8])
