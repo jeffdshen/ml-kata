@@ -3,15 +3,15 @@
 ## Task
 Implement SGD with momentum, Adagrad, RMSProp, Adam, and AdamW.
 
-Subclass the `torch.optim.Optimizer`` class. Here is an example with plain SGD:
+Subclass the `torch.optim.Optimizer` class. Here is an example with plain SGD:
 
 ```
-class SGD(torch.optimizer.Optimizer):
+class SGD(torch.optim.Optimizer):
     def __init__(self, params, lr=1e-1):
         defaults = dict(lr=lr)
-        super().__init(params, defaults)
+        super().__init__(params, defaults)
 
-    @torch.no_grad
+    @torch.no_grad()
     def step(self, closure=None):
         for group in self.param_groups:
             lr = group['lr']

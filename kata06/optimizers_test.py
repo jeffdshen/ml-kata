@@ -1,9 +1,13 @@
+import os
 import unittest
 
 import torch
 import torch.nn as nn
 
-import kata06.optimizers as sol
+if os.environ.get("ML_KATA_SOL"):
+    import kata06.sol.optimizers as sol
+else:
+    import kata06.optimizers as sol
 
 
 class DummyModel(nn.Module):
