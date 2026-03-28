@@ -8,18 +8,22 @@ It will be compared to a PyTorch implementation using nn modules.
 
 For full points, handle both dim = 1 and dim = 2 cases (batch, input_size).
 
-Implement:
+Implement in `logistic.py`:
 
 ```
 # W = (out, in), bias = (out,), x = (*, in), y = (*,)
-# update weight and bias
+# update weight and bias in-place
 def step(weight, bias, x, y, lr):
     pass
 ```
 
 For extra points, also handle the dim = 3 case (with first two dims as batch dimensions).
 
-Another bonus, what if we take a weighted sum instead where y is an arbitrary vector?
+Note: the loss uses `reduction="sum"`, not `"mean"`.
+
+## Bonus
+
+Implement in `soft_logistic.py`: what if we take a weighted sum instead where y is an arbitrary vector?
 
 ```
 # loss = (-F.log_softmax(self.linear(x)) * y).sum()
