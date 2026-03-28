@@ -1,9 +1,13 @@
+import os
 import unittest
 
 import torch
 import torch.nn.functional as F
 
-import kata05.attention as sol
+if os.environ.get("ML_KATA_SOL"):
+    import kata05.sol.attention as sol
+else:
+    import kata05.attention as sol
 
 
 class AttentionTestCase(unittest.TestCase):
