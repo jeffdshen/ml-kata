@@ -1,9 +1,13 @@
+import os
 import unittest
 
 import torch
 import torch.nn as nn
 
-import kata04.rnn as sol
+if os.environ.get("ML_KATA_SOL"):
+    import kata04.sol.rnn as sol
+else:
+    import kata04.rnn as sol
 
 
 class RnnTestCase(unittest.TestCase):
