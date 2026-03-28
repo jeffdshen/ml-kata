@@ -1,6 +1,19 @@
+![Tests](https://github.com/jeffdshen/ml-kata/actions/workflows/test.yml/badge.svg)
+![Python 3.10](https://img.shields.io/badge/python-3.10-blue)
+
 # ML Kata
 
 My personal collection of machine learning katas.
+
+## Prerequisites
+
+- [uv](https://docs.astral.sh/uv/)
+- Python 3.10
+
+Install dependencies:
+```bash
+uv sync
+```
 
 ## Description
 

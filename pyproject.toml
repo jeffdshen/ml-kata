@@ -21,33 +21,13 @@ dependencies = [
   "wandb==0.12.2",
   "black==22.6.0",
   "torchviz==0.0.2",
-]
-
-[project.optional-dependencies]
-cpu = [
-  "torch==2.2.0",
-]
-cu124 = [
-  "torch>=2.3.0",
-]
-macos = [
-  "torch==2.2.0",
-]
-
-[tool.uv]
-conflicts = [
-  [
-    { extra = "cpu" },
-    { extra = "cu124" },
-    { extra = "macos" },
-  ],
+  "torch>=2.4.0; platform_machine != 'x86_64' or sys_platform != 'darwin'",
+  "torch==2.2.0; platform_machine == 'x86_64' and sys_platform == 'darwin'",
 ]
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cpu", extra = "cpu" },
-  { index = "pytorch-cu124", extra = "cu124" },
-  { index = "pytorch-cpu", extra = "macos" },
+  { index = "pytorch-cpu", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
 ]
 
 [[tool.uv.index]]
