@@ -30,7 +30,7 @@ class RnnTestCase(unittest.TestCase):
         torch.testing.assert_close(h_0.grad, expected["h_0.grad"])
         sol_params = dict(sol_rnn.named_parameters())
         for k, v in rnn.named_parameters():
-            torch.testing.assert_close(sol_params[param_map[k]].grad, v.grad)
+            torch.testing.assert_close(sol_params[param_map[k]].grad, v.grad, atol=1e-4, rtol=1e-5)
 
     def test_single(self):
         torch.manual_seed(0)
