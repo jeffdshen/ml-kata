@@ -5,16 +5,16 @@ import torch
 import torch.nn as nn
 
 if os.environ.get("ML_KATA_SOL"):
-    import kata03.sol.logistic as sol
+    import kata03.sol.soft_logistic as sol
 else:
-    import kata03.logistic as sol
+    import kata03.soft_logistic as sol
 
 
-class LogisticModel(nn.Module):
+class SoftLogisticModel(nn.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
         self.lin = nn.Linear(in_size, out_size)
-        self.loss = nn.CrossEntropyLoss(reduction="sum")
+        self.logprob = nn.LogSoftmax(dim=-1)
 
     def copy_params(self):
         return (
@@ -24,15 +24,13 @@ class LogisticModel(nn.Module):
 
     def forward(self, x, y):
         x = self.lin(x)
-        x = x.unsqueeze(-1).transpose(1, -1).squeeze(1)
-        return self.loss(x, y)
+        return (-self.logprob(x) * y).sum()
 
 
-class LogisticTestCase(unittest.TestCase):
+class SoftLogisticTestCase(unittest.TestCase):
     def check_and_step(self, model, x, y, lr, optimizer):
         weight, bias = model.copy_params()
         sol.step(weight, bias, x, y, lr)
-
         model(x, y).backward()
         optimizer.step()
         optimizer.zero_grad()
@@ -43,35 +41,35 @@ class LogisticTestCase(unittest.TestCase):
 
     def test_dim1_small(self):
         torch.manual_seed(0)
-        model = LogisticModel(4, 5)
+        model = SoftLogisticModel(4, 5)
         x = torch.randn(4)
-        y = torch.randint(0, 5, tuple())
+        y = torch.rand(5)
         optimizer = torch.optim.SGD(model.parameters(), 0.1)
         self.check_and_step(model, x, y, 0.1, optimizer)
 
     def test_dim1_multi(self):
         torch.manual_seed(1)
-        model = LogisticModel(32, 32)
+        model = SoftLogisticModel(32, 32)
         x = torch.randn(32)
-        y = torch.randint(0, 32, tuple())
+        y = torch.rand(32)
         optimizer = torch.optim.SGD(model.parameters(), 0.1)
         for _ in range(10):
             self.check_and_step(model, x, y, 0.1, optimizer)
 
     def test_dim2_multi(self):
         torch.manual_seed(2)
-        model = LogisticModel(32, 32)
+        model = SoftLogisticModel(32, 32)
         x = torch.randn(32, 32)
-        y = torch.randint(0, 32, (32,))
+        y = torch.rand(32, 32)
         optimizer = torch.optim.SGD(model.parameters(), 0.1)
         for _ in range(10):
             self.check_and_step(model, x, y, 0.1, optimizer)
 
     def test_dim3_multi(self):
         torch.manual_seed(3)
-        model = LogisticModel(16, 10)
+        model = SoftLogisticModel(16, 10)
         x = torch.randn(5, 8, 16)
-        y = torch.randint(0, 10, (5, 8))
+        y = torch.rand(5, 8, 10)
         optimizer = torch.optim.SGD(model.parameters(), 0.1)
         for _ in range(10):
             self.check_and_step(model, x, y, 0.1, optimizer)

@@ -23,6 +23,6 @@ Another bonus, what if we take a weighted sum instead where y is an arbitrary ve
 
 ```
 # loss = (-F.log_softmax(self.linear(x)) * y).sum()
-def soft_step(weight, bias, x, y, lr):
+def step(weight, bias, x, y, lr):
     pass
 ```
