@@ -1,8 +1,13 @@
+import os
 import unittest
+
 import torch
 import torch.nn as nn
 
-import kata07.mha as sol
+if os.environ.get("ML_KATA_SOL"):
+    import kata07.sol.mha as sol
+else:
+    import kata07.mha as sol
 
 
 class MhaTestCase(unittest.TestCase):
@@ -22,7 +27,7 @@ class MhaTestCase(unittest.TestCase):
             else:
                 params[k] = v
         return params
-    
+
     def gen_key_padding(self, size):
         key_padding_mask = torch.rand(size) + 0.01
         key_padding_mask /= key_padding_mask.mean(dim=-1, keepdim=True)
@@ -68,9 +73,9 @@ class MhaTestCase(unittest.TestCase):
         }
         expected_grad_params = self.prepare_params(expected_grad_params.items())
 
-        expected[f"query.grad"] = query.grad.detach().clone()
-        expected[f"key.grad"] = key.grad.detach().clone()
-        expected[f"value.grad"] = value.grad.detach().clone()
+        expected["query.grad"] = query.grad.detach().clone()
+        expected["key.grad"] = key.grad.detach().clone()
+        expected["value.grad"] = value.grad.detach().clone()
         query.grad.zero_()
         key.grad.zero_()
         value.grad.zero_()
@@ -124,7 +129,7 @@ class MhaTestCase(unittest.TestCase):
         key_padding_mask = self.gen_key_padding((2, 3))
         self.check(mha, x, x, x, key_padding_mask, None)
 
-    def test_cross_attn_small_key_mask(self):
+    def test_cross_attn_small_attn_mask(self):
         torch.manual_seed(0)
         mha = nn.MultiheadAttention(8, 2, kdim=9, vdim=10, batch_first=True)
         q = torch.randn(2, 3, 8, requires_grad=True)
@@ -150,7 +155,7 @@ class MhaTestCase(unittest.TestCase):
         attn_mask = self.gen_attn_mask((3, 5), key_padding_mask)
         self.check(mha, q, k, v, key_padding_mask, attn_mask)
 
-    def test_self_attn_small_attn_mask(self):
+    def test_self_attn_small_masks(self):
         torch.manual_seed(0)
         mha = nn.MultiheadAttention(8, 2, batch_first=True)
         x = torch.randn(2, 3, 8, requires_grad=True)
@@ -209,7 +214,6 @@ class MhaTestCase(unittest.TestCase):
             key_padding_mask = self.gen_key_padding((10,))
             attn_mask = self.gen_attn_mask((10, 10), key_padding_mask)
             self.check(mha, x, x, x, key_padding_mask, attn_mask)
-
 
     # def test_mha(self):
     #     mha = nn.MultiheadAttention(32, 2, kdim=10, vdim=20, batch_first=True)
