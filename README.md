@@ -20,12 +20,18 @@ To practice a kata:
 
 ## List of Katas
 
-1. **MLP Gradients**. Compute forward/backward for linear, relu, and log_softmax.
-2. **MLP Digits**. Code a simple train loop for digits (MLP, dataset, optimizer).
-3. **Logistic SGD**. Code multinomial logistic regression training from scratch with SGD.
-4. **RNN**. Write a 2-layer Elman RNN with tanh non-linearity.
-5. **Scaled Dot Product Attention.** Implement scaled dot product attention.
-6. **Optimizers**. Implement SGD with momentum, Adagrad, RMSprop, Adam, AdamW.
-7. **Multi-head Attention**. Implement multi-head attention.
-8. **Softmax**. Compute forward/backward for softmax.
-9. **RoBERTa**. Implement RoBERTa from scratch.
+| # | Name | Description |
+|---|------|-------------|
+| 1 | MLP Gradients | Compute forward/backward for linear, relu, and log_softmax |
+| 2 | MLP Digits | Code a simple train loop for digits (MLP, dataset, optimizer) |
+| 3 | Logistic SGD | Code multinomial logistic regression training from scratch with SGD |
+| 4 | RNN | Write a 2-layer Elman RNN with tanh non-linearity |
+| 5 | Scaled Dot Product Attention | Implement scaled dot product attention |
+| 6 | Optimizers | Implement SGD with momentum, Adagrad, RMSprop, Adam, AdamW |
+| 7 | Multi-head Attention | Implement multi-head attention |
+| 8 | Softmax | Compute forward/backward for softmax |
+| 9 | RoBERTa | Implement RoBERTa from scratch |
+| 10 | GPT-2 | Implement a GPT-2 transformer decoder model from scratch |
+| 11 | Llama | Implement a Llama transformer decoder model from scratch |
+| 12 | Reinforcement Learning | WIP |
+| 13 | Mixture of Experts | Implement Mixture of Experts (MoE) components |
