@@ -1,7 +1,7 @@
 import unittest
 import torch
 import torch.nn as nn
-import kata4.rnn as sol
+import kata04.rnn as sol
 
 class RnnTestCase(unittest.TestCase):
     def check(self, rnn: nn.RNN, inputs: torch.Tensor, h_0: torch.Tensor):

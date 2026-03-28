@@ -3,9 +3,9 @@ import torch
 from transformers import RobertaConfig, RobertaModel as hf_RobertaModel
 
 try:
-    import kata9.roberta as sol
+    import kata09.roberta as sol
 except NotImplementedError:
-    import kata9.sol.roberta as sol
+    import kata09.sol.roberta as sol
 
 
 class RobertaTestCase(unittest.TestCase):

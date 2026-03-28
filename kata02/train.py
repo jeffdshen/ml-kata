@@ -4,8 +4,8 @@ import numpy
 from torch.utils.data import DataLoader
 import torch.optim as optim
 
-from kata2.dataset import NumpyDataset
-from kata2.mlp import Mlp
+from kata02.dataset import NumpyDataset
+from kata02.mlp import Mlp
 
 def train(train_inputs, train_targets, valid_inputs, valid_targets, epochs):
     train_set = NumpyDataset(train_inputs, train_targets)

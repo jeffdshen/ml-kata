@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-import kata8.softmax as sol
+import kata08.softmax as sol
 
 
 class SoftmaxTestCase(unittest.TestCase):

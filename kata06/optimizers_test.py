@@ -3,7 +3,7 @@ import unittest
 import torch
 import torch.nn as nn
 
-import kata6.optimizers as sol
+import kata06.optimizers as sol
 
 
 class DummyModel(nn.Module):

@@ -2,7 +2,7 @@ import unittest
 import torch
 import torch.nn as nn
 
-import kata7.mha as sol
+import kata07.mha as sol
 
 
 class MhaTestCase(unittest.TestCase):

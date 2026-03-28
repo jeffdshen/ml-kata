@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-import kata5.attention as sol
+import kata05.attention as sol
 
 class AttentionTestCase(unittest.TestCase):
     def check(self, query, key, value, attn_mask=None, scale=None):

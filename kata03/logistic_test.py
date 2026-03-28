@@ -3,7 +3,7 @@ import unittest
 import torch
 import torch.nn as nn
 
-import kata3.logistic as sol
+import kata03.logistic as sol
 
 class LogisticModel(nn.Module):
     def __init__(self, in_size, out_size):

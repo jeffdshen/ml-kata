@@ -2,7 +2,7 @@ import unittest
 import torch
 import torch.nn as nn
 import numpy as np
-import kata1.linear as sol
+import kata01.linear as sol
 
 
 class LinearTestCase(unittest.TestCase):

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-import kata2.dataset as sol
+import kata02.dataset as sol
 
 class NumpyDatasetTestCase(unittest.TestCase):
     def test_dataset(self):

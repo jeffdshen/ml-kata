@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
-import kata2.mlp as sol
+import kata02.mlp as sol
 
 class MlpTestCase(unittest.TestCase):
     def test_xor(self):
