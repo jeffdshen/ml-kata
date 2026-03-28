@@ -1,9 +1,8 @@
+import os
 import unittest
 
 import torch
 import torch.nn as nn
-
-import os
 
 if os.environ.get("ML_KATA_SOL"):
     import kata01.sol.relu as sol

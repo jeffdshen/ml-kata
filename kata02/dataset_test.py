@@ -1,11 +1,9 @@
+import os
 import unittest
 
 import numpy as np
-
 import torch
 from torch.utils.data import DataLoader
-
-import os
 
 if os.environ.get("ML_KATA_SOL"):
     import kata02.sol.dataset as sol

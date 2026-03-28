@@ -1,9 +1,6 @@
-from transformers import PreTrainedModel, LlamaConfig
-
-from transformers.modeling_outputs import CausalLMOutputWithPast
-
 import torch
-import torch.nn as nn
+from transformers import LlamaConfig, PreTrainedModel
+from transformers.modeling_outputs import CausalLMOutputWithPast
 
 
 class LlamaPreTrainedModel(PreTrainedModel):

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class RNN(nn.Module):
     def __init__(self, input_size, hidden_size):
         super().__init__()
@@ -19,7 +20,7 @@ class RNN(nn.Module):
             "weight_ih_l1": "lin_ih_l1.weight",
             "bias_ih_l1": "lin_ih_l1.bias",
             "weight_hh_l1": "lin_hh_l1.weight",
-            "bias_hh_l1": "lin_hh_l1.bias"
+            "bias_hh_l1": "lin_hh_l1.bias",
         }
 
     def forward(self, input, h_0):

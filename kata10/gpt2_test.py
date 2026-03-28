@@ -1,7 +1,10 @@
 import unittest
+
 import torch
 from transformers import (
     GPT2Config,
+)
+from transformers import (
     GPT2LMHeadModel as hf_GPT2LMHeadModel,
 )
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
@@ -48,7 +51,9 @@ class Gpt2TestCase(unittest.TestCase):
                 torch.testing.assert_close(
                     actual,
                     expected,
-                    msg=lambda msg: f"Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}",
+                    msg=lambda msg: (
+                        f"Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}"
+                    ),
                 )
             if sol_output.attentions is not None:
                 self.assertEqual(len(hf_output.attentions), len(sol_output.attentions))
@@ -58,7 +63,9 @@ class Gpt2TestCase(unittest.TestCase):
                     torch.testing.assert_close(
                         actual,
                         expected,
-                        msg=lambda msg: f"Attention {i} mismatch: {msg}, actual={actual}, expected={expected}",
+                        msg=lambda msg: (
+                            f"Attention {i} mismatch: {msg}, actual={actual}, expected={expected}"
+                        ),
                     )
 
         torch.testing.assert_close(sol_output.logits, hf_output.logits)
@@ -115,7 +122,9 @@ class Gpt2TestCase(unittest.TestCase):
                 torch.testing.assert_close(
                     actual,
                     expected,
-                    msg=lambda msg: f"Grad {name} mismatch: {msg}, actual={actual}, expected={expected}",
+                    msg=lambda msg: (
+                        f"Grad {name} mismatch: {msg}, actual={actual}, expected={expected}"
+                    ),
                 )
         hf_optimizer.step()
         sol_optimizer.step()
@@ -139,7 +148,7 @@ class Gpt2TestCase(unittest.TestCase):
             layer_norm_epsilon=1e-5,
             scale_attn_weights=True,
             use_cache=False,
-            attn_implementation="eager"
+            attn_implementation="eager",
         )
 
     def test_basic(self):

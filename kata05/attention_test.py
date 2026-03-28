@@ -1,15 +1,17 @@
 import unittest
+
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
-import numpy as np
 import kata05.attention as sol
+
 
 class AttentionTestCase(unittest.TestCase):
     def check(self, query, key, value, attn_mask=None, scale=None):
         expected = {}
-        outputs = F.scaled_dot_product_attention(query, key, value, attn_mask=attn_mask, scale=scale)
+        outputs = F.scaled_dot_product_attention(
+            query, key, value, attn_mask=attn_mask, scale=scale
+        )
         expected["outputs"] = outputs.detach().clone()
         loss = outputs.sum() ** 2
         loss.backward()
@@ -20,8 +22,10 @@ class AttentionTestCase(unittest.TestCase):
         query.grad.zero_()
         key.grad.zero_()
         value.grad.zero_()
-        
-        outputs = sol.scaled_dot_product_attention(query, key, value, attn_mask=attn_mask, scale=scale)
+
+        outputs = sol.scaled_dot_product_attention(
+            query, key, value, attn_mask=attn_mask, scale=scale
+        )
         loss = outputs.sum() ** 2
         loss.backward()
 
@@ -29,7 +33,6 @@ class AttentionTestCase(unittest.TestCase):
         torch.testing.assert_close(query.grad, expected["query.grad"])
         torch.testing.assert_close(key.grad, expected["key.grad"])
         torch.testing.assert_close(value.grad, expected["value.grad"])
-
 
     def tearDown(self):
         torch.set_default_dtype(torch.float32)

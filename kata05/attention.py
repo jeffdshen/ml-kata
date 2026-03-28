@@ -1,6 +1,7 @@
-import torch
 import numpy as np
+import torch
 import torch.nn.functional as F
+
 
 def scaled_dot_product_attention(
     query: torch.Tensor,
@@ -11,7 +12,7 @@ def scaled_dot_product_attention(
 ) -> torch.Tensor:
     if scale is None:
         scale = 1.0 / np.sqrt(query.size(-1))
-    
+
     # (..., L, K) @ (..., K, S)   -> (..., L, S)
     scores = (query @ key.transpose(-1, -2)) * scale
 

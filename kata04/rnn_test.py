@@ -1,7 +1,10 @@
 import unittest
+
 import torch
 import torch.nn as nn
+
 import kata04.rnn as sol
+
 
 class RnnTestCase(unittest.TestCase):
     def check(self, rnn: nn.RNN, inputs: torch.Tensor, h_0: torch.Tensor):
@@ -16,8 +19,8 @@ class RnnTestCase(unittest.TestCase):
         expected["h_n"] = h_n.detach().clone()
         (outputs.sum() ** 2).backward()
 
-        expected[f"inputs.grad"] = inputs.grad.detach().clone()
-        expected[f"h_0.grad"] = h_0.grad.detach().clone()
+        expected["inputs.grad"] = inputs.grad.detach().clone()
+        expected["h_0.grad"] = h_0.grad.detach().clone()
         inputs.grad.zero_()
         h_0.grad.zero_()
 
@@ -30,7 +33,9 @@ class RnnTestCase(unittest.TestCase):
         torch.testing.assert_close(h_0.grad, expected["h_0.grad"])
         sol_params = dict(sol_rnn.named_parameters())
         for k, v in rnn.named_parameters():
-            torch.testing.assert_close(sol_params[param_map[k]].grad, v.grad, atol=1e-4, rtol=1e-5)
+            torch.testing.assert_close(
+                sol_params[param_map[k]].grad, v.grad, atol=1e-4, rtol=1e-5
+            )
 
     def test_single(self):
         torch.manual_seed(0)

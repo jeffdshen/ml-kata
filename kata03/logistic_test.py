@@ -5,6 +5,7 @@ import torch.nn as nn
 
 import kata03.logistic as sol
 
+
 class LogisticModel(nn.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
@@ -12,12 +13,16 @@ class LogisticModel(nn.Module):
         self.loss = nn.CrossEntropyLoss(reduction="sum")
 
     def copy_params(self):
-        return self.lin.weight.data.detach().clone(), self.lin.bias.data.detach().clone()
+        return (
+            self.lin.weight.data.detach().clone(),
+            self.lin.bias.data.detach().clone(),
+        )
 
     def forward(self, x, y):
         x = self.lin(x)
         x = x.unsqueeze(-1).transpose(1, -1).squeeze(1)
         return self.loss(x, y)
+
 
 class LogisticTestCase(unittest.TestCase):
     def check_and_step(self, model, x, y, lr, optimizer):
@@ -27,7 +32,7 @@ class LogisticTestCase(unittest.TestCase):
         model(x, y).backward()
         optimizer.step()
         optimizer.zero_grad()
-        
+
         expected_weight, expected_bias = model.copy_params()
         torch.testing.assert_close(weight, expected_weight)
         torch.testing.assert_close(bias, expected_bias)
@@ -75,11 +80,15 @@ class SoftLogisticModel(nn.Module):
         self.logprob = nn.LogSoftmax(dim=-1)
 
     def copy_params(self):
-        return self.lin.weight.data.detach().clone(), self.lin.bias.data.detach().clone()
+        return (
+            self.lin.weight.data.detach().clone(),
+            self.lin.bias.data.detach().clone(),
+        )
 
     def forward(self, x, y):
         x = self.lin(x)
         return (-self.logprob(x) * y).sum()
+
 
 class SoftLogisticTestCase(unittest.TestCase):
     def check_and_step(self, model, x, y, lr, optimizer):
@@ -88,7 +97,7 @@ class SoftLogisticTestCase(unittest.TestCase):
         model(x, y).backward()
         optimizer.step()
         optimizer.zero_grad()
-        
+
         expected_weight, expected_bias = model.copy_params()
         torch.testing.assert_close(weight, expected_weight)
         torch.testing.assert_close(bias, expected_bias)

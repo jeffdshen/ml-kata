@@ -1,7 +1,10 @@
 import unittest
+
 import torch
 from transformers import (
     LlamaConfig,
+)
+from transformers import (
     LlamaForCausalLM as hf_LlamaForCausalLM,
 )
 from transformers.modeling_outputs import CausalLMOutputWithPast
@@ -49,7 +52,9 @@ class LlamaTestCase(unittest.TestCase):
                 torch.testing.assert_close(
                     actual,
                     expected,
-                    msg=lambda msg: f"{stage}: Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}",
+                    msg=lambda msg: (
+                        f"{stage}: Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}"
+                    ),
                 )
             if sol_output.attentions is not None:
                 self.assertEqual(len(hf_output.attentions), len(sol_output.attentions))
@@ -59,7 +64,9 @@ class LlamaTestCase(unittest.TestCase):
                     torch.testing.assert_close(
                         actual,
                         expected,
-                        msg=lambda msg: f"{stage}: Attention {i} mismatch: {msg}, actual={actual}, expected={expected}",
+                        msg=lambda msg: (
+                            f"{stage}: Attention {i} mismatch: {msg}, actual={actual}, expected={expected}"
+                        ),
                     )
 
         torch.testing.assert_close(sol_output.logits, hf_output.logits)
@@ -83,7 +90,14 @@ class LlamaTestCase(unittest.TestCase):
         hf_model.eval()
         sol_model.eval()
 
-        self.check_forward("first forward", hf_model, sol_model, input_ids, attention_mask, position_ids)
+        self.check_forward(
+            "first forward",
+            hf_model,
+            sol_model,
+            input_ids,
+            attention_mask,
+            position_ids,
+        )
         # Run a backward pass, and check that the second forward pass matches
         lr = 0.1
         hf_optimizer = torch.optim.SGD(hf_model.parameters(), lr=lr)
@@ -116,14 +130,18 @@ class LlamaTestCase(unittest.TestCase):
                 torch.testing.assert_close(
                     actual,
                     expected,
-                    msg=lambda msg: f"Grad {name} mismatch: {msg}, actual={actual}, expected={expected}",
+                    msg=lambda msg: (
+                        f"Grad {name} mismatch: {msg}, actual={actual}, expected={expected}"
+                    ),
                 )
         hf_optimizer.step()
         sol_optimizer.step()
         hf_optimizer.zero_grad()
         sol_optimizer.zero_grad()
 
-        self.check_forward("second forward", hf_model, sol_model, input_ids, attention_mask)
+        self.check_forward(
+            "second forward", hf_model, sol_model, input_ids, attention_mask
+        )
 
     def get_config(self):
         return LlamaConfig(

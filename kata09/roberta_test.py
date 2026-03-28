@@ -1,6 +1,8 @@
 import unittest
+
 import torch
-from transformers import RobertaConfig, RobertaModel as hf_RobertaModel
+from transformers import RobertaConfig
+from transformers import RobertaModel as hf_RobertaModel
 
 try:
     import kata09.roberta as sol
@@ -37,7 +39,9 @@ class RobertaTestCase(unittest.TestCase):
             torch.testing.assert_close(
                 actual,
                 expected,
-                msg=lambda msg: f"Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}",
+                msg=lambda msg: (
+                    f"Hidden state {i} mismatch: {msg}, actual={actual}, expected={expected}"
+                ),
             )
 
         torch.testing.assert_close(
@@ -100,7 +104,7 @@ class RobertaTestCase(unittest.TestCase):
             max_position_embeddings=128,
             hidden_dropout_prob=0.1,
             attention_probs_dropout_prob=0.1,
-            attn_implementation="eager"
+            attn_implementation="eager",
         )
 
     def test_basic(self):

@@ -1,8 +1,6 @@
-from transformers import PreTrainedModel, RobertaConfig
-
-from transformers.modeling_outputs import BaseModelOutputWithPoolingAndCrossAttentions
-
 import torch
+from transformers import PreTrainedModel, RobertaConfig
+from transformers.modeling_outputs import BaseModelOutputWithPoolingAndCrossAttentions
 
 
 class RobertaPretrainedModel(PreTrainedModel):

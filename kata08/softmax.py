@@ -1,6 +1,5 @@
 import torch
-import numpy as np
-import torch.nn.functional as F
+
 
 class SoftmaxFunction(torch.autograd.Function):
     @staticmethod
@@ -11,10 +10,10 @@ class SoftmaxFunction(torch.autograd.Function):
         save.append(x)
         ctx.save_for_backward(*save)
         return x
-    
+
     @staticmethod
     def backward(ctx, grad_output):
-        z, = ctx.saved_tensors
+        (z,) = ctx.saved_tensors
         dz = grad_output
         # z_i = exp(x_i) / sum(exp(x_i))
         # dz_i/dx_i = z_i (1-z_i)
