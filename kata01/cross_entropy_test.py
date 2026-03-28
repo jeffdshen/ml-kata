@@ -1,28 +1,33 @@
 import unittest
+
 import torch
 import torch.nn as nn
 
-import numpy as np
-import kata01.ce as sol
+import os
+
+if os.environ.get("ML_KATA_SOL"):
+    import kata01.sol.cross_entropy as sol
+else:
+    import kata01.cross_entropy as sol
 
 
-class CeTestCase(unittest.TestCase):
-    def check(self, ce, inputs, targets):
-        outputs = ce(inputs, targets).sum() ** 2
+class CrossEntropyTestCase(unittest.TestCase):
+    def check(self, cross_entropy, inputs, targets):
+        outputs = cross_entropy(inputs, targets).sum() ** 2
         expected = {}
         expected["outputs"] = outputs.detach().clone()
         outputs.backward()
 
         expected["inputs.grad"] = inputs.grad.detach().clone()
-        ce.zero_grad()
+        cross_entropy.zero_grad()
         inputs.grad.zero_()
 
-        outputs = sol.CeFunction.apply(inputs, targets).sum() ** 2
+        outputs = sol.CrossEntropyFunction.apply(inputs, targets).sum() ** 2
         outputs.backward()
         torch.testing.assert_close(outputs, expected["outputs"])
         torch.testing.assert_close(inputs.grad, expected["inputs.grad"])
         torch.autograd.gradcheck(
-            sol.CeFunction.apply, (inputs, targets), fast_mode=True
+            sol.CrossEntropyFunction.apply, (inputs, targets), fast_mode=True
         )
 
     def tearDown(self):
@@ -31,15 +36,15 @@ class CeTestCase(unittest.TestCase):
     def test_dim_1(self):
         torch.set_default_dtype(torch.float64)
         torch.manual_seed(0)
-        ce = nn.CrossEntropyLoss(reduction="none")
+        cross_entropy = nn.CrossEntropyLoss(reduction="none")
         inputs = torch.randn(64, requires_grad=True)
         targets = torch.randint(0, 64, tuple())
-        self.check(ce, inputs, targets)
+        self.check(cross_entropy, inputs, targets)
 
     def test_dim_2(self):
         torch.set_default_dtype(torch.float64)
         torch.manual_seed(1)
-        ce = nn.CrossEntropyLoss(reduction="none")
+        cross_entropy = nn.CrossEntropyLoss(reduction="none")
         inputs = torch.randn(64, 64, requires_grad=True)
         targets = torch.randint(0, 64, (64,))
-        self.check(ce, inputs, targets)
+        self.check(cross_entropy, inputs, targets)

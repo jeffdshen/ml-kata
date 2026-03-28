@@ -5,7 +5,7 @@
 Compute functions and gradients for:
 1. A linear layer
 2. A RELU activation
-3. A log-softmax layer (without a mean reduction, without dim = 3+ case)
+3. A cross entropy loss (without a mean reduction, without dim = 3+ case)
 
 Implement them in the form of `torch.autograd.Function`.
 
@@ -30,9 +30,9 @@ Note that:
 * The gradients from backward will be reduced via sum to match the forward shape,
 which can be convenient.
 
-The functions (`LinearFunction`, `ReluFunction`, `CeFunction`) will be compared against:
+The functions (`LinearFunction`, `ReluFunction`, `CrossEntropyFunction`) will be compared against:
 ```
 torch.nn.functional.linear(input, weight, bias) -> Tensor
 torch.nn.functional.relu(input) -> Tensor
-torch.nn.functional.log_softmax(input, dim=None) -> Tensor
+torch.nn.functional.cross_entropy(input, target, reduction="none") -> Tensor
 ```

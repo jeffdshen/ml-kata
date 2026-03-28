@@ -1,9 +1,15 @@
 import unittest
+
 import torch
 import torch.nn as nn
 
-import numpy as np
-import kata01.relu as sol
+import os
+
+if os.environ.get("ML_KATA_SOL"):
+    import kata01.sol.relu as sol
+else:
+    import kata01.relu as sol
+
 
 class ReluTestCase(unittest.TestCase):
     def check(self, relu, inputs):
@@ -15,7 +21,7 @@ class ReluTestCase(unittest.TestCase):
         expected["inputs.grad"] = inputs.grad.detach().clone()
         relu.zero_grad()
         inputs.grad.zero_()
-        
+
         outputs = sol.ReluFunction.apply(inputs).sum() ** 2
         outputs.backward()
         torch.testing.assert_close(outputs, expected["outputs"])

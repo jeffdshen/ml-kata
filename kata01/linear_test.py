@@ -1,8 +1,14 @@
 import unittest
+
 import torch
 import torch.nn as nn
-import numpy as np
-import kata01.linear as sol
+
+import os
+
+if os.environ.get("ML_KATA_SOL"):
+    import kata01.sol.linear as sol
+else:
+    import kata01.linear as sol
 
 
 class LinearTestCase(unittest.TestCase):
@@ -18,7 +24,9 @@ class LinearTestCase(unittest.TestCase):
         linear.zero_grad()
         inputs.grad.zero_()
 
-        outputs = sol.LinearFunction.apply(inputs, linear.weight, linear.bias).sum() ** 2
+        outputs = (
+            sol.LinearFunction.apply(inputs, linear.weight, linear.bias).sum() ** 2
+        )
         outputs.backward()
         torch.testing.assert_close(outputs, expected["outputs"])
         torch.testing.assert_close(linear.weight.grad, expected["weight.grad"])
