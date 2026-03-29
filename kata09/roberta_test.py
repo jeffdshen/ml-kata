@@ -1,13 +1,14 @@
+import os
 import unittest
 
 import torch
 from transformers import RobertaConfig
 from transformers import RobertaModel as hf_RobertaModel
 
-try:
-    import kata09.roberta as sol
-except NotImplementedError:
+if os.environ.get("ML_KATA_SOL"):
     import kata09.sol.roberta as sol
+else:
+    import kata09.roberta as sol
 
 
 class RobertaTestCase(unittest.TestCase):

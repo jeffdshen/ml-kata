@@ -141,6 +141,3 @@ class RobertaModel(RobertaPretrainedModel):
         # TODO: Implement forward pass. See below for reference.
         # return BaseModelOutputWithPoolingAndCrossAttentions(last_hidden_state=x, hidden_states=y)
         raise NotImplementedError("forward not implemented")
-
-
-raise NotImplementedError("kata9/roberta.py not implemented")
