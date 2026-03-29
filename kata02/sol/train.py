@@ -12,6 +12,7 @@ def train(
     valid_inputs: np.ndarray,
     valid_targets: np.ndarray,
     epochs: int,
+    verbose: bool = False,
 ) -> np.ndarray:
     train_set = NumpyDataset(train_inputs, train_targets)
     valid_set = NumpyDataset(valid_inputs, valid_targets)
@@ -41,26 +42,27 @@ def train(
         train_loss = total_loss / total_count
         train_acc = total_success / total_count
 
-        with torch.no_grad():
-            model.eval()
-            total_loss = 0.0
-            total_success = 0.0
-            total_count = 0.0
-            for x, y in valid_loader:
-                loss, logits = model(x, y)
-                success = (torch.argmax(logits, dim=-1) == y).sum()
-                count = y.size(0)
+        if verbose:
+            with torch.no_grad():
+                model.eval()
+                total_loss = 0.0
+                total_success = 0.0
+                total_count = 0.0
+                for x, y in valid_loader:
+                    loss, logits = model(x, y)
+                    success = (torch.argmax(logits, dim=-1) == y).sum()
+                    count = y.size(0)
 
-                total_success += success
-                total_loss += loss.item() * count
-                total_count += count
-            valid_loss = total_loss / total_count
-            valid_acc = total_success / total_count
-            print(
-                f"train loss: {train_loss:.4f}, train acc: {train_acc:.4f}. "
-                f"valid loss: {valid_loss:.4f}, valid acc: {valid_acc:.4f}"
-            )
-            model.train()
+                    total_success += success
+                    total_loss += loss.item() * count
+                    total_count += count
+                valid_loss = total_loss / total_count
+                valid_acc = total_success / total_count
+                print(
+                    f"train loss: {train_loss:.4f}, train acc: {train_acc:.4f}. "
+                    f"valid loss: {valid_loss:.4f}, valid acc: {valid_acc:.4f}"
+                )
+                model.train()
 
     preds = []
     with torch.no_grad():
