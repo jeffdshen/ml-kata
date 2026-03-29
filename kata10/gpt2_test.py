@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import torch
@@ -9,10 +10,10 @@ from transformers import (
 )
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 
-try:
-    import kata10.gpt2 as sol
-except NotImplementedError:
+if os.environ.get("ML_KATA_SOL"):
     import kata10.sol.gpt2 as sol
+else:
+    import kata10.gpt2 as sol
 
 
 class Gpt2TestCase(unittest.TestCase):
@@ -83,6 +84,8 @@ class Gpt2TestCase(unittest.TestCase):
         """
         # Load both models with same weights and check that first forward pass matches
         hf_model = hf_GPT2LMHeadModel(config)
+        # Fix warning: `loss_type=None` was set in the config but it is unrecognized.
+        hf_model.loss_type = "ForCausalLM"
         sol_model = sol.Gpt2LMHeadModel(config)
         sol_model.load_hf_state_dict(hf_model.state_dict())
 

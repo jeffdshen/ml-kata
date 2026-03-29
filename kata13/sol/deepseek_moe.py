@@ -7,15 +7,14 @@ Licensed under the MIT License.
 See LICENSE or https://opensource.org/licenses/MIT
 """
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import torch
-from torch import nn
-import torch.nn.functional as F
 import torch.distributed as dist
+import torch.nn.functional as F
+from torch import nn
 
 from kata13.args import ModelArgs
-
 
 world_size = 1
 rank = 0
@@ -112,9 +111,9 @@ class ColumnParallelLinear(Linear):
     def __init__(
         self, in_features: int, out_features: int, bias: bool = False, dtype=None
     ):
-        assert (
-            out_features % world_size == 0
-        ), f"Output features must be divisible by world size (world_size={world_size})"
+        assert out_features % world_size == 0, (
+            f"Output features must be divisible by world size (world_size={world_size})"
+        )
         self.part_out_features = out_features // world_size
         super().__init__(in_features, self.part_out_features, bias, dtype)
 
@@ -148,9 +147,9 @@ class RowParallelLinear(Linear):
         reduce_output=True,
         dtype=None,
     ):
-        assert (
-            in_features % world_size == 0
-        ), f"Input features must be divisible by world size (world_size={world_size})"
+        assert in_features % world_size == 0, (
+            f"Input features must be divisible by world size (world_size={world_size})"
+        )
         self.part_in_features = in_features // world_size
         self.reduce_output = reduce_output
         super().__init__(self.part_in_features, out_features, bias, dtype)
@@ -326,9 +325,9 @@ class MoE(nn.Module):
         """
         super().__init__()
         self.dim = args.dim
-        assert (
-            args.n_routed_experts % world_size == 0
-        ), f"Number of experts must be divisible by world size (world_size={world_size})"
+        assert args.n_routed_experts % world_size == 0, (
+            f"Number of experts must be divisible by world size (world_size={world_size})"
+        )
         self.n_routed_experts = args.n_routed_experts
         self.n_local_experts = args.n_routed_experts // world_size
         self.n_activated_experts = args.n_activated_experts

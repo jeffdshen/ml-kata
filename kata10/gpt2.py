@@ -83,6 +83,3 @@ class Gpt2LMHeadModel(Gpt2PretrainedModel):
         #     attentions=x.attentions,
         # )
         raise NotImplementedError("forward not implemented")
-
-
-raise NotImplementedError("kata10/gpt2.py not implemented")

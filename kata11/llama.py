@@ -70,6 +70,3 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         #     attentions=x.attentions,
         # )
         raise NotImplementedError("forward not implemented")
-
-
-raise NotImplementedError("kata11/llama.py not implemented")

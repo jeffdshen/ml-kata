@@ -1,12 +1,14 @@
+import os
 import unittest
+
 import torch
 
-from kata13.sol.deepseek_moe import MoE, ModelArgs
+from kata13.sol.deepseek_moe import ModelArgs, MoE
 
-try:
-    import kata13.moe as sol
-except NotImplementedError:
+if os.environ.get("ML_KATA_SOL"):
     import kata13.sol.moe as sol
+else:
+    import kata13.moe as sol
 
 
 class MoeTestCase(unittest.TestCase):

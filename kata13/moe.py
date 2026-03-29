@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from kata13.args import ModelArgs
 
@@ -43,6 +42,3 @@ class MoE(nn.Module):
     def load_ds_state_dict(self, state_dict, *args, **kwargs):
         # TODO: Load HF state dict into our model. See below for reference.
         return self.load_state_dict(state_dict, *args, **kwargs)
-
-
-raise NotImplementedError("kata13/llama.py not implemented")

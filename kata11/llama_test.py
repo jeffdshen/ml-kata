@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import torch
@@ -9,10 +10,10 @@ from transformers import (
 )
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
-try:
-    import kata11.llama as sol
-except NotImplementedError:
+if os.environ.get("ML_KATA_SOL"):
     import kata11.sol.llama as sol
+else:
+    import kata11.llama as sol
 
 
 class LlamaTestCase(unittest.TestCase):
