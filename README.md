@@ -25,11 +25,15 @@ There is no meaning behind the kata order; they are simply in the order in which
 
 To practice a kata:
 1. Navigate to the kata folder and read the `README.md`.
-2. Delete the relevant implementation files.
-3. Reimplement the required files.
-4. Do not use external assistance (e.g. internet). It is fair game to read the unit tests.
-4. Run the unit tests via `python -m unittest kataX.XXX_test`.
-5. Compare your implementation against the reference afterwards.
+2. Implement the required files.
+3. Do not use external assistance (e.g. internet). It is fair game to read the unit tests. Do not look at the `sol` subdirectories.
+4. Run the unit tests via `uv run python -m unittest discover -s kataXX -p "*_test.py"` or a specific test via `uv run python -m unittest kataXX.XXX_test`.
+5. Compare your implementation against the reference in `sol/` afterwards.
+
+To run tests against the reference solutions, set `ML_KATA_SOL=1`:
+```bash
+ML_KATA_SOL=1 uv run python -m unittest discover -s kataXX -p "*_test.py"
+```
 
 ## List of Katas
 
