@@ -1,9 +1,13 @@
+import os
 import unittest
 
 import torch
 import torch.nn.functional as F
 
-import kata08.softmax as sol
+if os.environ.get("ML_KATA_SOL"):
+    import kata08.sol.softmax as sol
+else:
+    import kata08.softmax as sol
 
 
 class SoftmaxTestCase(unittest.TestCase):
